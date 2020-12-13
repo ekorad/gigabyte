@@ -67,7 +67,7 @@ public class WebUserService implements ChecksEntity<WebUser> {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
-        if (!isEntityValid(user)) {
+        if (isEntityInvalid(user)) {
             throw new IllegalArgumentException("User is invalid (one or more of the required fields is either null or empty)");
         }
 
@@ -78,7 +78,7 @@ public class WebUserService implements ChecksEntity<WebUser> {
         if (users == null || users.isEmpty()) {
             throw new IllegalArgumentException("The collection of users to be added cannot be null or empty");
         }
-        if (users.stream().anyMatch(this::isEntityValid)) {
+        if (users.stream().anyMatch(this::isEntityInvalid)) {
             throw new IllegalArgumentException("User is invalid (one or more of the required fields is either null or empty)");
         }
         
@@ -106,17 +106,18 @@ public class WebUserService implements ChecksEntity<WebUser> {
     }
 
     @Override
-    public boolean isEntityValid(WebUser user) {
+    public boolean isEntityInvalid(WebUser user) {
         String username = user.getUsername();
         String password = user.getPassword();
         String fName = user.getFirstName();
         String lName = user.getLastName();
         String email = user.getEmail();
-        return ((username != null && !username.isEmpty())
-        && (password != null && !password.isEmpty())
-        && (fName != null && !fName.isEmpty())
-        && (lName != null && !lName.isEmpty())
-        && (email != null && !email.isEmpty()));
+
+        return (username == null || username.isEmpty()
+        || password == null || password.isEmpty()
+        || fName == null || fName.isEmpty()
+        || lName == null || lName.isEmpty()
+        || email == null || email.isEmpty());
     }
     
 }

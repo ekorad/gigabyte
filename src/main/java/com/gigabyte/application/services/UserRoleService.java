@@ -32,7 +32,7 @@ public class UserRoleService implements ChecksEntity<UserRole> {
         if (role == null) {
             throw new IllegalArgumentException("Role cannot be null");
         }
-        if (!isEntityValid(role)) {
+        if (isEntityInvalid(role)) {
             throw new IllegalArgumentException("Role is invalid (role name cannot be null or empty)");
         }
 
@@ -43,7 +43,7 @@ public class UserRoleService implements ChecksEntity<UserRole> {
         if (roles == null || roles.isEmpty()) {
             throw new IllegalArgumentException("The collection of roles to be added cannot be null or empty");
         }
-        if (roles.stream().anyMatch(this::isEntityValid)) {
+        if (roles.stream().anyMatch(this::isEntityInvalid)) {
             throw new IllegalArgumentException("Role is invalid (role name cannot be null or empty)");
         }
 
@@ -62,9 +62,9 @@ public class UserRoleService implements ChecksEntity<UserRole> {
     }
 
     @Override
-    public boolean isEntityValid(UserRole role) {
+    public boolean isEntityInvalid(UserRole role) {
         String name = role.getName();
-        return (name != null && !name.isEmpty());
+        return (name == null || name.isEmpty());
     }
 
 }

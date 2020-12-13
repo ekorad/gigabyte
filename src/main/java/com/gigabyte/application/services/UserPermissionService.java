@@ -32,7 +32,7 @@ public class UserPermissionService implements ChecksEntity<UserPermission> {
         if (permission == null) {
             throw new IllegalArgumentException("Permission cannot be null");
         }
-        if (!isEntityValid(permission)) {
+        if (isEntityInvalid(permission)) {
             throw new IllegalArgumentException("Permission is invalid (permission name cannot be null or empty)");
         }
         return repo.save(permission);
@@ -42,7 +42,7 @@ public class UserPermissionService implements ChecksEntity<UserPermission> {
         if (permissions == null || permissions.isEmpty()) {
             throw new IllegalArgumentException("The collection of permissions to be added cannot be null or empty");
         }
-        if (permissions.stream().anyMatch(this::isEntityValid)) {
+        if (permissions.stream().anyMatch(this::isEntityInvalid)) {
             throw new IllegalArgumentException("Permission is invalid (permission name cannot be null or empty)");
         }
         return repo.saveAll(permissions);
@@ -61,8 +61,8 @@ public class UserPermissionService implements ChecksEntity<UserPermission> {
     }
 
     @Override
-    public boolean isEntityValid(UserPermission permission) {
+    public boolean isEntityInvalid(UserPermission permission) {
         String name = permission.getName();
-        return (name != null && !name.isEmpty());
+        return (name == null || name.isEmpty());
     }
 }

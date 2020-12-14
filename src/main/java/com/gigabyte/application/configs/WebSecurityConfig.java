@@ -1,5 +1,6 @@
 package com.gigabyte.application.configs;
 
+import com.gigabyte.application.handlers.UsernamePasswordAuthenticationSuccessHandler;
 import com.gigabyte.application.others.Http401UnauthorizedEntryPoint;
 import com.gigabyte.application.services.WebUserDetailsService;
 
@@ -15,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @EnableWebSecurity(debug = true)
@@ -23,6 +25,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private Http401UnauthorizedEntryPoint authEntryPoint;
+    @Autowired
+    private UsernamePasswordAuthenticationSuccessHandler authSuccessHandler;
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -47,7 +51,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public UsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter() throws Exception {
         UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter(authenticationManager());
         filter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/users/authenticate", "POST"));
-
+        filter.setAuthenticationSuccessHandler(authSuccessHandler);
         return filter;
     }
 
@@ -56,7 +60,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable().httpBasic().disable().formLogin().disable().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
                 .antMatchers("/users/authenticate").permitAll().anyRequest().authenticated().and().exceptionHandling()
-                .authenticationEntryPoint(authEntryPoint);
+                .authenticationEntryPoint(authEntryPoint)
+                .and()
+                .addFilterAfter(usernamePasswordAuthenticationFilter(), LogoutFilter.class);
     }
 
 }

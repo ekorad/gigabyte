@@ -1,5 +1,6 @@
 package com.gigabyte.application.configs;
 
+import com.gigabyte.application.filters.JWTAuthorizationFilter;
 import com.gigabyte.application.handlers.UsernamePasswordAuthenticationSuccessHandler;
 import com.gigabyte.application.others.Http401UnauthorizedEntryPoint;
 import com.gigabyte.application.services.WebUserDetailsService;
@@ -48,6 +49,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    public JWTAuthorizationFilter jwtAuthorizationFilter() {
+        return new JWTAuthorizationFilter();
+    }
+
+    @Bean
     public UsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter() throws Exception {
         UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter(authenticationManager());
         filter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/users/authenticate", "POST"));
@@ -62,7 +68,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users/authenticate").permitAll().anyRequest().authenticated().and().exceptionHandling()
                 .authenticationEntryPoint(authEntryPoint)
                 .and()
-                .addFilterAfter(usernamePasswordAuthenticationFilter(), LogoutFilter.class);
+                .addFilterAfter(usernamePasswordAuthenticationFilter(), LogoutFilter.class)
+                .addFilterAfter(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
 }
